@@ -9,8 +9,10 @@ import time
 from decimal import Decimal
 from typing import Optional
 from functools import wraps
+from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import requests
 from solana.rpc.api import Client
 from solana.rpc.core import RPCException
@@ -21,6 +23,9 @@ import base58
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
+# Import site generator
+from site_generator import SiteGenerator
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -29,10 +34,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
-APP = FastAPI(title="Dojo3 Airdrop API", version="1.0.0")
+app = FastAPI(title="Dojo3 Airdrop API", version="1.0.0")
 
 # Add CORS middleware
-APP.add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173').split(','),
     allow_credentials=True,
@@ -42,9 +47,19 @@ APP.add_middleware(
 
 # Configuration
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_PATH = Path(BASE_DIR).parent
 RECIPIENTS_CSV = os.path.join(BASE_DIR, '..', 'outputs', 'recipients_full_sample.csv')
 ALLOC_FILE = os.path.join(BASE_DIR, '..', 'outputs', 'allocations_live.csv')
 CLAIMS_FILE = os.path.join(BASE_DIR, '..', 'outputs', 'claims.json')
+
+# Sites configuration
+SITES_DIR = BASE_PATH / 'public' / 'sites'
+SITES_DB_FILE = BASE_PATH / 'config' / 'sites_db.json'
+SITES_DIR.mkdir(parents=True, exist_ok=True)
+SITES_DB_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+# Initialize site generator
+site_generator = SiteGenerator(sites_dir=SITES_DIR)
 
 # Proof secret (HMAC). Set via env PROOF_SECRET. Falls back to ADMIN_TOKEN if present.
 PROOF_SECRET = os.environ.get('PROOF_SECRET') or os.environ.get('ADMIN_TOKEN')
@@ -408,7 +423,7 @@ class ClaimIn(BaseModel):
         return v
 
 
-@APP.get('/health')
+@app.get('/health')
 def health():
     """Health check endpoint"""
     return {
@@ -419,7 +434,7 @@ def health():
     }
 
 
-@APP.get('/api/eligibility')
+@app.get('/api/eligibility')
 @rate_limit(max_requests=30)
 def eligibility(wallet: str, request: Request):
     """Check airdrop eligibility for a wallet"""
@@ -473,7 +488,7 @@ def eligibility(wallet: str, request: Request):
         raise HTTPException(status_code=500, detail='Internal server error')
 
 
-@APP.post('/api/claim')
+@app.post('/api/claim')
 @rate_limit(max_requests=5)
 def claim(inp: ClaimIn, request: Request):
     """Submit airdrop claim with wallet signature verification"""
@@ -573,7 +588,7 @@ def claim(inp: ClaimIn, request: Request):
         raise HTTPException(status_code=500, detail='Internal server error')
 
 
-@APP.post('/api/admin/run')
+@app.post('/api/admin/run')
 def admin_run(request: Request):
     """Trigger airdrop distribution (admin only)"""
     logger.info("Admin run requested")
@@ -637,7 +652,7 @@ def admin_run(request: Request):
         raise HTTPException(status_code=500, detail='Internal server error')
 
 
-@APP.get('/api/status')
+@app.get('/api/status')
 @rate_limit(max_requests=20)
 def status(request: Request):
     """Get airdrop distribution status"""
@@ -699,7 +714,7 @@ def generate_site_id():
     import uuid
     return str(uuid.uuid4())[:8]
 
-@APP.get('/api/sites')
+@app.get('/api/sites')
 @rate_limit(max_requests=20)
 def get_user_sites(wallet: str, request: Request):
     """Get all sites for a wallet"""
@@ -717,7 +732,7 @@ def get_user_sites(wallet: str, request: Request):
         logger.error(f"Error fetching sites: {e}")
         raise HTTPException(status_code=500, detail='Failed to fetch sites')
 
-@APP.post('/api/sites/create')
+@app.post('/api/sites/create')
 @rate_limit(max_requests=10)
 def create_site(request_data: dict, request: Request):
     """Create new site"""
@@ -754,7 +769,7 @@ def create_site(request_data: dict, request: Request):
         logger.error(f"Error creating site: {e}")
         raise HTTPException(status_code=500, detail='Failed to create site')
 
-@APP.post('/api/sites/renew')
+@app.post('/api/sites/renew')
 @rate_limit(max_requests=10)
 def renew_site(request_data: dict, request: Request):
     """Renew site subscription"""
@@ -789,7 +804,7 @@ def renew_site(request_data: dict, request: Request):
         logger.error(f"Error renewing site: {e}")
         raise HTTPException(status_code=500, detail='Failed to renew site')
 
-@APP.post('/api/sites/delete')
+@app.post('/api/sites/delete')
 @rate_limit(max_requests=10)
 def delete_site(request_data: dict, request: Request):
     """Delete a site"""
@@ -820,7 +835,7 @@ def delete_site(request_data: dict, request: Request):
         logger.error(f"Error deleting site: {e}")
         raise HTTPException(status_code=500, detail='Failed to delete site')
 
-@APP.get('/api/sites/{site_id}')
+@app.get('/api/sites/{site_id}')
 @rate_limit(max_requests=30)
 def get_site(site_id: str, request: Request):
     """Get a specific site by ID"""
@@ -843,3 +858,189 @@ def get_site(site_id: str, request: Request):
     except Exception as e:
         logger.error(f"Error fetching site: {e}")
         raise HTTPException(status_code=500, detail='Failed to fetch site')
+
+# ============================================
+# USER SITES ENDPOINTS (subdomain: username.dojo3)
+# ============================================
+
+def load_sites_db():
+    """Load sites database"""
+    if SITES_DB_FILE.exists():
+        return json.loads(SITES_DB_FILE.read_text())
+    return {}
+
+def save_sites_db(sites: dict):
+    """Save sites database"""
+    SITES_DB_FILE.write_text(json.dumps(sites, indent=2))
+
+class CreateSiteRequest(BaseModel):
+    """Request to create a user site"""
+    name: str
+    description: str = ""
+    template: str = "classic"
+    color: str = "#4ECDC4"
+    wallet: str
+    txid: str
+    timestamp: str
+
+@app.post('/api/sites/create')
+@rate_limit(max_requests=5)
+def create_user_site(payload: CreateSiteRequest, request: Request):
+    """Create a new user site
+    
+    Subdomain format: {username}.dojo3
+    Generates static HTML from template
+    """
+    logger.info(f"Creating site for wallet {payload.wallet}...")
+    
+    try:
+        # Validate template
+        valid_templates = ['classic', 'modern', 'minimal', 'gaming']
+        if payload.template not in valid_templates:
+            raise HTTPException(status_code=400, detail=f'Invalid template. Must be one of: {", ".join(valid_templates)}')
+        
+        # Use wallet address as username (first 8 chars)
+        username = payload.wallet[:8].lower()
+        
+        # Check if site already exists
+        sites_db = load_sites_db()
+        if username in sites_db and sites_db[username].get('active'):
+            raise HTTPException(status_code=409, detail='Site already exists for this wallet')
+        
+        # Generate site HTML
+        site_data = {
+            'name': payload.name,
+            'description': payload.description,
+            'template': payload.template,
+            'color': payload.color
+        }
+        
+        html_path = site_generator.generate(username, site_data)
+        logger.info(f"Generated site at: {html_path}")
+        
+        # Save to sites database
+        sites_db[username] = {
+            'username': username,
+            'wallet': payload.wallet,
+            'name': payload.name,
+            'description': payload.description,
+            'template': payload.template,
+            'color': payload.color,
+            'txid': payload.txid,
+            'created_at': payload.timestamp,
+            'active': True,
+            'url': f'https://{username}.dojo3'
+        }
+        save_sites_db(sites_db)
+        
+        return {
+            'status': 'success',
+            'site_id': username,
+            'url': f'http://{username}.dojo3',
+            'message': f'Site created successfully at {username}.dojo3'
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating site: {e}")
+        raise HTTPException(status_code=500, detail=f'Failed to create site: {str(e)}')
+
+@app.post('/api/sites/delete')
+@rate_limit(max_requests=10)
+def delete_user_site(payload: dict, request: Request):
+    """Delete a user site
+    
+    Requires wallet address that created the site
+    """
+    logger.info(f"Deleting site for wallet {payload.get('wallet')}...")
+    
+    try:
+        wallet = payload.get('wallet')
+        if not wallet:
+            raise HTTPException(status_code=400, detail='Wallet address required')
+        
+        username = wallet[:8].lower()
+        
+        # Check if site exists
+        sites_db = load_sites_db()
+        if username not in sites_db:
+            raise HTTPException(status_code=404, detail='Site not found')
+        
+        # Delete site files
+        success = site_generator.delete_site(username)
+        
+        # Mark as inactive in database
+        sites_db[username]['active'] = False
+        save_sites_db(sites_db)
+        
+        logger.info(f"Site {username} deleted")
+        
+        return {
+            'status': 'success',
+            'message': f'Site {username}.dojo3 deleted'
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting site: {e}")
+        raise HTTPException(status_code=500, detail=f'Failed to delete site: {str(e)}')
+
+@app.get('/api/sites/{username}')
+@rate_limit(max_requests=30)
+def get_user_site_info(username: str, request: Request):
+    """Get site information"""
+    logger.info(f"Fetching site info for {username}...")
+    
+    try:
+        sites_db = load_sites_db()
+        
+        if username not in sites_db:
+            raise HTTPException(status_code=404, detail='Site not found')
+        
+        site = sites_db[username]
+        
+        if not site.get('active'):
+            raise HTTPException(status_code=410, detail='Site is inactive')
+        
+        return {
+            'status': 'success',
+            'site': site,
+            'url': f'http://{username}.dojo3'
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching site: {e}")
+        raise HTTPException(status_code=500, detail='Failed to fetch site')
+
+@app.get('/api/sites')
+@rate_limit(max_requests=20)
+def list_all_sites(request: Request):
+    """List all active sites"""
+    logger.info("Listing all sites...")
+    
+    try:
+        sites_db = load_sites_db()
+        active_sites = {k: v for k, v in sites_db.items() if v.get('active')}
+        
+        return {
+            'status': 'success',
+            'count': len(active_sites),
+            'sites': active_sites
+        }
+    
+    except Exception as e:
+        logger.error(f"Error listing sites: {e}")
+        raise HTTPException(status_code=500, detail='Failed to list sites')
+
+# Mount static files for serving user sites
+public_dir = BASE_PATH / 'public'
+if public_dir.exists():
+    try:
+        app.mount('/sites', StaticFiles(directory=str(public_dir / 'sites')), name='sites')
+        logger.info(f"Mounted static files directory: {public_dir / 'sites'}")
+    except Exception as e:
+        logger.warning(f"Could not mount static files: {e}")

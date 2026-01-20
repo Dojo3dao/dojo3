@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useWallet, useConnection } from '@solana/wallet-adapter-react'
 import { PublicKey, SystemProgram, LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js'
 
-const STAKING_PROGRAM_ID = new PublicKey('8pSyRMP7R5qDU5BTqR93rESA1R2h5jH6hdPRjXmjnj8u')
+const STAKING_PROGRAM_ID = new PublicKey('HMwy4JHwuLkMMR3q6B3atwZ4oUAGrc3yHtgC7MswWNY1')
+const TREASURY_ADDRESS = '8pSyRMP7R5qDU5BTqR93rESA1R2h5jH6hdPRjXmjnj8u'
 const STAKING_AMOUNT = 0.5 // SOL
 
 export default function Staking() {
@@ -55,10 +56,13 @@ export default function Staking() {
 			// Get latest blockhash
 			const { blockhash } = await connection.getLatestBlockhash()
 
+			// Send to treasury (where staking deposits go)
+			const treasuryPubkey = new PublicKey(TREASURY_ADDRESS)
+
 			// Create instruction
 			const instruction = SystemProgram.transfer({
 				fromPubkey: publicKey,
-				toPubkey: STAKING_PROGRAM_ID,
+				toPubkey: treasuryPubkey,
 				lamports: Math.floor(STAKING_AMOUNT * LAMPORTS_PER_SOL),
 			})
 

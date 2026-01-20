@@ -46,7 +46,7 @@ export default function SiteManager() {
 	const loadUserSites = async () => {
 		try {
 			const response = await fetch(
-				`http://localhost:8000/api/sites?wallet=${publicKey.toString()}`
+				`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/sites?wallet=${publicKey.toString()}`
 			)
 			if (response.ok) {
 				const data = await response.json()
@@ -61,18 +61,18 @@ export default function SiteManager() {
 		e.preventDefault()
 
 		if (!newSiteData.name.trim()) {
-			setError('اسم الموقع مطلوب')
+			setError('Site name is required')
 			return
 		}
 
 		if (balance < SITE_CREATION_FEE) {
-			setError(`رصيد كافي مطلوب: ${SITE_CREATION_FEE} SOL`)
+			setError(`Insufficient balance required: ${SITE_CREATION_FEE} SOL`)
 			return
 		}
 
 		setCreatingPayment(true)
 		setError(null)
-		setStatus('🔐 معالجة الدفع...')
+		setStatus('🔐 Processing payment...')
 
 		try {
 			const { blockhash } = await connection.getLatestBlockhash()
@@ -90,18 +90,19 @@ export default function SiteManager() {
 			})
 			transaction.add(instruction)
 
-			setStatus('✍️ جاري طلب التوقيع من المحفظة...')
+			setStatus('✍️ Requesting wallet signature...')
 			const txid = await sendTransaction(transaction, connection)
 
-			setStatus('⏳ تأكيد المعاملة...')
+			setStatus('⏳ Confirming transaction...')
 			const confirmation = await connection.confirmTransaction(txid, 'confirmed')
 
 			if (confirmation.value.err) {
-				throw new Error('فشل الدفع على السلسلة')
+				throw new Error('Payment confirmation failed on-chain')
 			}
 
 			// Save site to backend
-			const siteResponse = await fetch('http://localhost:8000/api/sites/create', {
+			const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+			const siteResponse = await fetch(`${apiUrl}/api/sites/create`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -116,16 +117,18 @@ export default function SiteManager() {
 			})
 
 			if (!siteResponse.ok) {
-				throw new Error('فشل في حفظ الموقع')
+				throw new Error('Failed to save site')
 			}
 
 			const siteData = await siteResponse.json()
+			const username = publicKey.toString().slice(0, 8).toLowerCase()
+			const siteUrl = `http://${username}.dojo3`
 
-			setStatus(`✅ تم إنشاء الموقع بنجاح!\n🌐 الرابط: ${window.location.origin}/sites/${siteData.site_id}`)
+			setStatus(`✅ Site created successfully!\n🌐 Link: ${siteUrl}`)
 			setNewSiteData({ name: '', description: '', template: 'classic', color: '#4ECDC4' })
 			setShowCreateForm(false)
 
-			window.showToast?.('✓ تم إنشاء الموقع بنجاح!', 'success')
+			window.showToast?.('✓ Site created successfully!', 'success')
 
 			setTimeout(() => {
 				loadBalance()
@@ -134,7 +137,7 @@ export default function SiteManager() {
 			}, 2000)
 
 		} catch (err) {
-			const msg = err?.message || 'فشل في إنشاء الموقع'
+			const msg = err?.message || 'Failed to create site'
 			setError(msg)
 			setStatus('')
 			window.showToast?.(`✗ ${msg}`, 'error')
@@ -145,13 +148,13 @@ export default function SiteManager() {
 
 	const handleRenewSite = async (siteId) => {
 		if (balance < SITE_MAINTENANCE_FEE) {
-			setError(`رصيد كافي مطلوب: ${SITE_MAINTENANCE_FEE} SOL`)
+			setError(`Insufficient balance required: ${SITE_MAINTENANCE_FEE} SOL`)
 			return
 		}
 
 		setCreatingPayment(true)
 		setError(null)
-		setStatus('🔄 تجديد الموقع...')
+		setStatus('🔄 Renewing site...')
 
 		try {
 			const { blockhash } = await connection.getLatestBlockhash()
@@ -173,11 +176,12 @@ export default function SiteManager() {
 			const confirmation = await connection.confirmTransaction(txid, 'confirmed')
 
 			if (confirmation.value.err) {
-				throw new Error('فشل في تجديد الموقع')
+				throw new Error('Failed to renew site')
 			}
 
 			// Update site renewal on backend
-			await fetch('http://localhost:8000/api/sites/renew', {
+			const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+			await fetch(`${apiUrl}/api/sites/renew`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -188,8 +192,8 @@ export default function SiteManager() {
 				})
 			})
 
-			setStatus(`✅ تم تجديد الموقع بنجاح!`)
-			window.showToast?.('✓ تم تجديد الموقع!', 'success')
+			setStatus(`✅ Site renewed successfully!`)
+			window.showToast?.('✓ Site renewed!', 'success')
 
 			setTimeout(() => {
 				loadBalance()
@@ -198,7 +202,7 @@ export default function SiteManager() {
 			}, 2000)
 
 		} catch (err) {
-			const msg = err?.message || 'فشل في التجديد'
+			const msg = err?.message || 'Renewal failed'
 			setError(msg)
 			setStatus('')
 			window.showToast?.(`✗ ${msg}`, 'error')
@@ -208,10 +212,11 @@ export default function SiteManager() {
 	}
 
 	const handleDeleteSite = async (siteId) => {
-		if (!confirm('هل تريد حذف هذا الموقع بشكل نهائي؟')) return
+		if (!confirm('Are you sure you want to permanently delete this site?')) return
 
 		try {
-			const response = await fetch('http://localhost:8000/api/sites/delete', {
+			const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+			const response = await fetch(`${apiUrl}/api/sites/delete`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -221,10 +226,10 @@ export default function SiteManager() {
 			})
 
 			if (!response.ok) {
-				throw new Error('فشل في حذف الموقع')
+				throw new Error('Failed to delete site')
 			}
 
-			window.showToast?.('✓ تم حذف الموقع', 'success')
+			window.showToast?.('✓ Site deleted', 'success')
 			loadUserSites()
 
 		} catch (err) {
@@ -235,9 +240,9 @@ export default function SiteManager() {
 	if (!connected) {
 		return (
 			<div className="widget">
-				<h3>🌐 إدارة المواقع الشخصية</h3>
+				<h3>🌐 SITE MANAGER</h3>
 				<div className="warning">
-					تحتاج إلى ربط محفظتك لإنشاء موقع خاص بك
+					Connect your wallet to create and manage your personal site
 				</div>
 			</div>
 		)
@@ -245,7 +250,7 @@ export default function SiteManager() {
 
 	return (
 		<div className="widget">
-			<h3>🌐 إدارة المواقع الشخصية</h3>
+			<h3>🌐 SITE MANAGER</h3>
 
 			{error && <div className="error-banner">{error}</div>}
 			{status && <div className="status" style={{whiteSpace: 'pre-wrap'}}>{status}</div>}
@@ -258,24 +263,24 @@ export default function SiteManager() {
 				marginBottom: '16px',
 				fontSize: '11px'
 			}}>
-				<div style={{color: 'var(--text-dim)', marginBottom: '6px'}}>💰 الرصيد</div>
+				<div style={{color: 'var(--text-dim)', marginBottom: '6px'}}>💰 BALANCE</div>
 				<div style={{fontSize: '14px', fontWeight: 'bold', color: 'var(--info)', marginBottom: '6px'}}>
 					{balance} SOL
 				</div>
 				<div style={{fontSize: '9px', color: 'var(--text-dim)', lineHeight: '1.5'}}>
-					<div>💳 إنشاء موقع: {SITE_CREATION_FEE} SOL</div>
-					<div>📅 تجديد شهري: {SITE_MAINTENANCE_FEE} SOL</div>
+					<div>💳 Create Site: {SITE_CREATION_FEE} SOL</div>
+					<div>📅 Monthly Renewal: {SITE_MAINTENANCE_FEE} SOL</div>
 				</div>
 			</div>
 
 			{/* Create Form */}
 			{showCreateForm ? (
 				<form onSubmit={handleCreateSite} style={{marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border)'}}>
-					<h4 style={{margin: '0 0 10px', fontSize: '12px', color: 'var(--accent)'}}>📝 إنشاء موقع جديد</h4>
+				<h4 style={{margin: '0 0 10px', fontSize: '12px', color: 'var(--accent)'}}>📝 CREATE NEW SITE</h4>
 
-					<input
-						type="text"
-						placeholder="اسم الموقع"
+				<input
+					type="text"
+					placeholder="Site Name"
 						value={newSiteData.name}
 						onChange={(e) => setNewSiteData({...newSiteData, name: e.target.value})}
 						style={{
@@ -291,7 +296,7 @@ export default function SiteManager() {
 					/>
 
 					<textarea
-						placeholder="وصف الموقع"
+					placeholder="Site Description"
 						value={newSiteData.description}
 						onChange={(e) => setNewSiteData({...newSiteData, description: e.target.value})}
 						style={{
@@ -322,10 +327,10 @@ export default function SiteManager() {
 							fontSize: '11px'
 						}}
 					>
-						<option value="classic">⚡ قالب كلاسيكي</option>
-						<option value="modern">🎨 قالب عصري</option>
-						<option value="minimal">📱 قالب بسيط</option>
-						<option value="gaming">🎮 قالب ألعاب</option>
+					<option value="classic">⚡ Classic Template</option>
+					<option value="modern">🎨 Modern Template</option>
+					<option value="minimal">📱 Minimal Template</option>
+					<option value="gaming">🎮 Gaming Template</option>
 					</select>
 
 					<div style={{display: 'flex', gap: '10px', marginBottom: '10px'}}>
@@ -336,7 +341,7 @@ export default function SiteManager() {
 							style={{width: '50px', height: '36px', border: 'none', borderRadius: '3px', cursor: 'pointer'}}
 						/>
 						<div style={{flex: 1, padding: '8px', background: 'rgba(0,0,0,0.2)', borderRadius: '3px', fontSize: '11px'}}>
-							اللون الأساسي: {newSiteData.color}
+							Primary Color: {newSiteData.color}
 						</div>
 					</div>
 
@@ -348,8 +353,8 @@ export default function SiteManager() {
 						fontSize: '10px',
 						border: '1px solid var(--border)'
 					}}>
-						<strong>💰 الرسوم:</strong>
-						<div>{SITE_CREATION_FEE} SOL سيتم تحويلها للخزينة</div>
+					<strong>💰 Fee:</strong>
+					<div>{SITE_CREATION_FEE} SOL will be transferred to treasury</div>
 					</div>
 
 					<div style={{display: 'flex', gap: '10px'}}>
@@ -369,7 +374,7 @@ export default function SiteManager() {
 								opacity: creatingPayment ? 0.5 : 1
 							}}
 						>
-							{creatingPayment ? '⏳ جاري...' : '✨ إنشاء الموقع'}
+							{creatingPayment ? '⏳ Processing...' : '✨ CREATE SITE'}
 						</button>
 						<button
 							type="button"
@@ -385,7 +390,7 @@ export default function SiteManager() {
 								cursor: 'pointer'
 							}}
 						>
-							إلغاء
+							CANCEL
 						</button>
 					</div>
 				</form>
@@ -405,14 +410,14 @@ export default function SiteManager() {
 						marginBottom: '16px'
 					}}
 				>
-					➕ إنشاء موقع جديد
+					➕ CREATE NEW SITE
 				</button>
 			)}
 
 			{/* Sites List */}
 			{sites.length > 0 ? (
 				<div>
-					<h4 style={{margin: '0 0 10px', fontSize: '12px', color: 'var(--accent)'}}>📋 مواقعك</h4>
+					<h4 style={{margin: '0 0 10px', fontSize: '12px', color: 'var(--accent)'}}>📋 YOUR SITES</h4>
 					{sites.map((site) => (
 						<div
 							key={site.id}
@@ -464,7 +469,7 @@ export default function SiteManager() {
 										cursor: 'pointer'
 									}}
 								>
-									👁️ عرض
+									👁️ VIEW
 								</button>
 								<button
 									onClick={() => handleRenewSite(site.id)}
@@ -479,7 +484,7 @@ export default function SiteManager() {
 										cursor: 'pointer'
 									}}
 								>
-									🔄 تجديد
+									🔄 RENEW
 								</button>
 								<button
 									onClick={() => handleDeleteSite(site.id)}
@@ -494,7 +499,7 @@ export default function SiteManager() {
 										cursor: 'pointer'
 									}}
 								>
-									🗑️ حذف
+									🗑️ DELETE
 								</button>
 							</div>
 						</div>
@@ -509,9 +514,9 @@ export default function SiteManager() {
 					fontSize: '11px',
 					color: 'var(--text-dim)'
 				}}>
-					لم تقم بإنشاء أي مواقع بعد
+					No sites created yet
 					<br/>
-					ابدأ الآن وأنشئ موقعك الأول! 🚀
+					Start now and create your first site! 🚀
 				</div>
 			)}
 		</div>
