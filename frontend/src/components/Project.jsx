@@ -3,57 +3,65 @@ import React from 'react'
 export default function Project(){
   return (
     <div id="project" className="widget">
-      <h3>Dojo3 — Project Overview</h3>
-      <p className="lead">Dojo3 blends token distribution, NFT utility, staking mechanics and referral incentives into a single community-first launch.</p>
+      <h3>💎 TOKENOMICS</h3>
 
-      <div className="cards">
-        <div className="card">
-          <h4>Tokenomics</h4>
-          <ul>
-            <li><strong>Total supply:</strong> 850,000,000 DOJO</li>
-            <li><strong>Airdrop:</strong> 60% (510,000,000)</li>
-            <li><strong>Public sale:</strong> 40%</li>
-            <li><strong>Referral:</strong> 24% of recipient allocation</li>
-            <li><strong>Target price:</strong> $0.00001</li>
-          </ul>
+      <div style={{
+        background: 'rgba(255,204,0,0.05)',
+        padding: '14px',
+        borderRadius: '3px',
+        marginTop: '12px',
+        fontSize: '11px',
+        border: '1px solid var(--border)',
+        lineHeight: '1.8'
+      }}>
+        <div style={{marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid var(--border)'}}>
+          <div style={{color: 'var(--text-dim)', marginBottom: '4px', letterSpacing: '0.5px'}}>TOTAL SUPPLY</div>
+          <div style={{fontSize: '14px', fontWeight: 'bold', color: 'var(--accent)'}}>850,000,000 DOJO</div>
         </div>
 
-        <div className="card">
-          <h4>Airdrop Eligibility</h4>
-          <p>Applicants qualify by meeting one or more conditions. Eligibility is determined on‑chain or via our allocation CSV.</p>
-          <ul>
-            <li>Holders with > $100 USD in listed tokens</li>
-            <li>Owners of qualifying NFT collections (e.g. Pudgy Penguins)</li>
-            <li>Dojo3 NFT or staking rewards holders</li>
-          </ul>
+        <div style={{marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid var(--border)'}}>
+          <div style={{color: 'var(--text-dim)', marginBottom: '6px'}}>ALLOCATION BREAKDOWN</div>
+          <div style={{marginBottom: '4px'}}>📦 Airdrop: <strong style={{color: 'var(--success)'}}>60%</strong> (510M)</div>
+          <div style={{marginBottom: '4px'}}>💰 Public Sale: <strong>40%</strong></div>
+          <div>🎁 Referral Bonus: <strong>24%</strong> of allocation</div>
         </div>
 
-        <div className="card">
-          <h4>NFT & Staking</h4>
-          <p>Pixel collection (999). Stake to earn allocation or mint discount.</p>
-          <p><strong>Stake min:</strong> 0.5 SOL for minimum 3 days.</p>
-          <p><strong>Staking contract:</strong> <code>HMwy4JHwuLkMMR3q6B3atwZ4oUAGrc3yHtgC7MswWNY1</code></p>
+        <div style={{marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid var(--border)'}}>
+          <div style={{color: 'var(--text-dim)', marginBottom: '4px'}}>VALUATION</div>
+          <div><strong>Target Price:</strong> $0.00001</div>
         </div>
 
-        <div className="card">
-          <h4>Fees & Services</h4>
-          <ul>
-            <li>NFT minting discount for eligible holders</li>
-            <li>Platform/tx fees kept minimal for testnet</li>
-            <li>Optional launch services (token, website, minting)</li>
-          </ul>
+        <div>
+          <div style={{color: 'var(--text-dim)', marginBottom: '6px', fontSize: '10px'}}>🔐 Secure Contract</div>
+          <div style={{
+            fontSize: '9px',
+            color: 'var(--text-dim)',
+            fontStyle: 'italic'
+          }}>
+            ✓ Contract audited and deployed
+          </div>
         </div>
       </div>
 
-      <h4>How It Works</h4>
-      <ol>
-        <li>Connect wallet and run an eligibility check.</li>
-        <li>If eligible, request a proof and sign the claim with your wallet.</li>
-        <li>Server records the claim and admin orchestrator distributes tokens (dry-run available).</li>
-      </ol>
+      <div style={{marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)'}}>
+        <h4 style={{margin: '0 0 10px', fontSize: '12px', color: 'var(--accent)', letterSpacing: '0.5px'}}>✓ ELIGIBILITY RULES</h4>
+        <div style={{fontSize: '11px', lineHeight: '1.8', color: 'var(--text-dim)'}}>
+          <div style={{marginBottom: '8px'}}>🔹 Hold $100+ USD in verified tokens</div>
+          <div style={{marginBottom: '8px'}}>🔹 Own Pudgy Penguins or verified NFTs</div>
+          <div style={{marginBottom: '8px'}}>🔹 Stake 0.5+ SOL for 3+ days</div>
+          <div>🔹 Participate in community events</div>
+        </div>
+      </div>
 
-      <h4>Official</h4>
-      <p>Follow updates: <a href="https://x.com/Dojo3_" target="_blank" rel="noreferrer">https://x.com/Dojo3_</a></p>
+      <div style={{marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)'}}>
+        <h4 style={{margin: '0 0 10px', fontSize: '12px', color: 'var(--accent)', letterSpacing: '0.5px'}}>🎁 STAKING REWARDS</h4>
+        <div style={{fontSize: '11px', lineHeight: '1.8', color: 'var(--text-dim)'}}>
+          <div style={{marginBottom: '8px'}}>💾 Minimum: <strong>0.5 SOL</strong></div>
+          <div style={{marginBottom: '8px'}}>⏱️ Lock Period: <strong>3 Days</strong></div>
+          <div style={{marginBottom: '8px'}}>🎨 Reward: <strong>Exclusive Dojo3 Pixel NFT</strong></div>
+          <div>✨ Supply: Limited to 999</div>
+        </div>
+      </div>
     </div>
   )
 }

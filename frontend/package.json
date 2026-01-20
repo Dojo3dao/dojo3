@@ -2,14 +2,27 @@
   "name": "dojo3-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.jsx"
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@solana/web3.js": "^1.91.0",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react-ui": "^0.9.35",
+    "@solana/wallet-adapter-wallets": "^0.19.18",
+    "@solana/wallet-adapter-base": "^0.9.23",
+    "bs58": "^5.0.0",
+    "pixelated-image": "^1.0.5",
+    "react-image-pixel": "^2.0.0",
+    "jimp": "^0.22.10",
+    "sharp": "^0.33.0",
+    "image-pixelate": "^1.0.0"
   },
   "devDependencies": {
     "vite": "^5.0.0",
