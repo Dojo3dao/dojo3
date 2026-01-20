@@ -1,0 +1,9 @@
+[programs.localnet]
+dojo3_airdrop = "REPLACE_WITH_PROGRAM_ID"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[registry]
+url = "https://anchor.projectserum.com"
