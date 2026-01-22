@@ -81,8 +81,15 @@ export default function App() {
 
             <Toasts />
 
-            <footer className="pixel-footer">
-              ⚠️ Mainnet: Use production keys only — ensure funds and key rotation.
+            <footer className="pixel-footer" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                <span style={{fontSize: 16}}>🎪</span>
+                <strong>Dojo3</strong>
+              </div>
+
+              <a href="https://twitter.com/Dojo3fi" target="_blank" rel="noreferrer" style={{background: '#1DA1F2', color: '#fff', padding: '6px 10px', borderRadius: 6, textDecoration: 'none'}}>
+                Follow @Dojo3fi
+              </a>
             </footer>
           </div>
         </WalletModalProvider>
