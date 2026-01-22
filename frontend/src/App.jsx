@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { PhantomWalletAdapter, SolflareWalletAdapter, LedgerWalletAdapter } from '@solana/wallet-adapter-wallets'
@@ -118,6 +119,7 @@ function ReferrerBannerInline() {
 
   const displayRef = queryRef || storedRef
 
+  const { publicKey, connected } = useWallet()
   const [copied, setCopied] = useState(false)
 
   const copyText = async (text) => {
@@ -133,7 +135,9 @@ function ReferrerBannerInline() {
   if (!displayRef) return null
 
   const short = displayRef.length > 24 ? `${displayRef.slice(0, 12)}…${displayRef.slice(-8)}` : displayRef
-  const shareUrl = `${window.location.origin}${window.location.pathname}?ref=${displayRef}`
+  // If the user has a connected wallet, prefer using their wallet as the referrer
+  const refToShare = (connected && publicKey) ? publicKey.toString() : displayRef
+  const shareUrl = `${window.location.origin}${window.location.pathname}?ref=${refToShare}`
 
   return (
     <div style={{background: 'linear-gradient(90deg,#072540,#0b3b5a)', color: '#fff', padding: '10px 14px', textAlign: 'center', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px'}}>
@@ -143,7 +147,7 @@ function ReferrerBannerInline() {
       </div>
 
       <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-        <button onClick={() => copyText(displayRef)} style={{padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#0ea5a3', color: '#012'}}>
+        <button onClick={() => copyText(refToShare)} style={{padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#0ea5a3', color: '#012'}}>
           Copy Pubkey
         </button>
 
