@@ -19,7 +19,6 @@
     "@solana/wallet-adapter-base": "^0.9.23",
     "bs58": "^5.0.0",
     "pixelated-image": "^1.0.5",
-    "react-image-pixel": "^2.0.0",
     "jimp": "^0.22.10",
     "sharp": "^0.33.0",
     "image-pixelate": "^1.0.0"

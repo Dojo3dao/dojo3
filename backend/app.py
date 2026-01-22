@@ -24,7 +24,8 @@ from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
 # Import site generator
-from site_generator import SiteGenerator
+# Use package-qualified import so uvicorn started from repo root finds the module
+from backend.site_generator import SiteGenerator
 
 # Setup logging
 logging.basicConfig(

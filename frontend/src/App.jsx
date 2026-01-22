@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { PhantomWalletAdapter, SolflareWalletAdapter, LedgerWalletAdapter } from '@solana/wallet-adapter-wallets'
@@ -45,6 +45,9 @@ export default function App() {
             return null
           })()}
           <div className="pixel-app">
+            {/* Referrer banner (shows if a referral id is present in localStorage) */}
+            {/** Inline small component to avoid creating new files */}
+            <ReferrerBannerInline />
             <header className="pixel-header">
               <div className="brand">🎪 DOJO3</div>
               <div className="tag">AIRDROP • STAKING • NFTs • TESTNET</div>
@@ -100,5 +103,28 @@ export default function App() {
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
+  )
+}
+
+function ReferrerBannerInline() {
+  const [ref, setRef] = useState(null)
+
+  useEffect(() => {
+    try {
+      const r = localStorage.getItem('dojo3_referrer')
+      if (r) setRef(r)
+    } catch (e) {
+      // ignore
+    }
+  }, [])
+
+  if (!ref) return null
+
+  const short = ref.length > 16 ? `${ref.slice(0, 8)}...${ref.slice(-8)}` : ref
+
+  return (
+    <div style={{background: 'linear-gradient(90deg,#072540,#0b3b5a)', color: '#fff', padding: '8px 12px', textAlign: 'center', fontSize: '13px'}}>
+      👉 You were referred by: <strong style={{fontFamily: 'monospace'}}>{short}</strong>
+    </div>
   )
 }
