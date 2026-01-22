@@ -31,19 +31,7 @@ export default function App() {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          {/* Parse referral query param once and store for later (claiming) */}
-          {typeof window !== 'undefined' && (() => {
-            try {
-              const params = new URLSearchParams(window.location.search)
-              const ref = params.get('ref') || params.get('r')
-              if (ref) {
-                localStorage.setItem('dojo3_referrer', ref)
-              }
-            } catch (e) {
-              // ignore
-            }
-            return null
-          })()}
+          {/* Referrer handling moved into banner component for reliable mount order */}
           <div className="pixel-app">
             {/* Referrer banner (shows if a referral id is present in localStorage) */}
             {/** Inline small component to avoid creating new files */}
@@ -111,8 +99,18 @@ function ReferrerBannerInline() {
 
   useEffect(() => {
     try {
-      const r = localStorage.getItem('dojo3_referrer')
-      if (r) setRef(r)
+      // Parse query param and persist it, prefer `ref` then `r`
+      const params = new URLSearchParams(window.location.search)
+      const qref = params.get('ref') || params.get('r')
+      if (qref) {
+        localStorage.setItem('dojo3_referrer', qref)
+        setRef(qref)
+        return
+      }
+
+      // Fallback to any previously stored referrer
+      const stored = localStorage.getItem('dojo3_referrer')
+      if (stored) setRef(stored)
     } catch (e) {
       // ignore
     }
