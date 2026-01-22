@@ -55,7 +55,7 @@ export default function App() {
 
                 <div style={{display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12}}>
                   <div style={{fontSize: 14, color: 'var(--text-dim)'}}>Solana ·</div>
-                  <div style={{fontSize: 14, fontWeight: 700, color: 'var(--accent)'}}>{features[featIdx]}</div>
+                  <div className="hero-feature" key={featIdx} style={{fontSize: 14, fontWeight: 700, color: 'var(--accent)'}}>{features[featIdx]}</div>
                   <div style={{fontSize: 13, color: 'var(--text-dim)'}}>• Mainnet</div>
                 </div>
 
