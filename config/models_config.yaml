@@ -1,9 +1,0 @@
-models:
-  claude_haiku_4_5:
-    enabled: true
-    scope: all_clients
-    note: Enable Claude Haiku 4.5 for all clients. Platform-specific enforcement required.
-  deepseek_coder_6_7b:
-    pulled: true
-    pull_command: ollama pull deepseek-coder:6.7b
-    note: Run the pull command after installing Ollama to fetch this model locally.

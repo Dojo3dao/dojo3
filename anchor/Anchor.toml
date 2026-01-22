@@ -1,9 +1,0 @@
-[programs.localnet]
-dojo3_airdrop = "HMwy4JHwuLkMMR3q6B3atwZ4oUAGrc3yHtgC7MswWNY1"
-
-[provider]
-cluster = "mainnet"
-wallet = "~/.config/solana/id.json"
-
-[registry]
-url = "https://anchor.projectserum.com"
