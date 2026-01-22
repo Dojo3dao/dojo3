@@ -87,8 +87,8 @@ export default function App() {
                 <strong>Dojo3</strong>
               </div>
 
-              <a href="https://twitter.com/Dojo3fi" target="_blank" rel="noreferrer" style={{background: '#1DA1F2', color: '#fff', padding: '6px 10px', borderRadius: 6, textDecoration: 'none'}}>
-                Follow @Dojo3fi
+              <a href="https://x.com/Dojo3_" target="_blank" rel="noreferrer" style={{background: '#1DA1F2', color: '#fff', padding: '6px 10px', borderRadius: 6, textDecoration: 'none'}}>
+                Follow @Dojo3_
               </a>
             </footer>
           </div>
