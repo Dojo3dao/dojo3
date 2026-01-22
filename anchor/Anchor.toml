@@ -1,5 +1,5 @@
 [programs.localnet]
-dojo3_airdrop = "REPLACE_WITH_PROGRAM_ID"
+dojo3_airdrop = "HMwy4JHwuLkMMR3q6B3atwZ4oUAGrc3yHtgC7MswWNY1"
 
 [provider]
 cluster = "mainnet"

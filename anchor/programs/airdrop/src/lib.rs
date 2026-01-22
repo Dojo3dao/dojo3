@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, TokenAccount, Token, Transfer};
 
-// ⚠️ IMPORTANT: Replace with actual deployed program ID
-declare_id!("REPLACE_WITH_YOUR_AIRDROP_PROGRAM_ID");
+// Program ID deployed on Mainnet
+declare_id!("HMwy4JHwuLkMMR3q6B3atwZ4oUAGrc3yHtgC7MswWNY1");
 
 const TOTAL_SUPPLY: u64 = 850_000_000;
 const AIRDROP_PERCENT: u64 = 60;
