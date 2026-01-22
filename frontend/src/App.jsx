@@ -6,7 +6,6 @@ import { PhantomWalletAdapter, SolflareWalletAdapter, LedgerWalletAdapter } from
 import { clusterApiUrl } from '@solana/web3.js'
 import WalletConnect from './components/WalletConnect'
 import Eligibility from './components/Eligibility'
-import Admin from './components/Admin'
 import Project from './components/Project'
 import Staking from './components/Staking'
 import NFTCollections from './components/NFTCollections'
@@ -78,9 +77,6 @@ export default function App() {
                 <SiteManager />
               </div>
 
-              <div className="admin-row">
-                <Admin />
-              </div>
             </main>
 
             <Toasts />
