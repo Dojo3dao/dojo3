@@ -407,6 +407,7 @@ class ClaimIn(BaseModel):
     proof: str
     message: Optional[str] = None
     signature: Optional[str] = None
+    referrer: Optional[str] = None
     
     @validator('wallet')
     def validate_wallet(cls, v):
@@ -563,7 +564,8 @@ def claim(inp: ClaimIn, request: Request):
             'amount': inp.amount,
             'ts': int(time.time()),
             'message': inp.message,
-            'signature': inp.signature
+            'signature': inp.signature,
+            'referrer': inp.referrer or ''
         }
         claims.append(entry)
         

@@ -12,6 +12,7 @@ export default function Eligibility() {
 	const [claiming, setClaiming] = useState(false)
 	const [success, setSuccess] = useState(null)
 	const [details, setDetails] = useState(null)
+	const [proof, setProof] = useState(null)
 	const [onchainData, setOnchainData] = useState(null)
 	const [balance, setBalance] = useState(null)
 
@@ -62,6 +63,7 @@ export default function Eligibility() {
 				setEligible(true)
 				setAmount(data.allocation || 0)
 				setDetails(data)
+				if (data.proof) setProof(data.proof)
 				
 				// Store on-chain details if available
 				if (data.onchain) {
@@ -118,14 +120,17 @@ export default function Eligibility() {
 
 			setStatusMsg('⏳ Submitting claim to blockchain...')
 
+			const referrer = localStorage.getItem('dojo3_referrer') || null
 			const response = await fetch('http://localhost:8000/api/claim', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					wallet: publicKey.toString(),
 					amount,
+					proof: proof,
 					signature: signatureB64,
 					message,
+					referrer: referrer,
 				}),
 			})
 

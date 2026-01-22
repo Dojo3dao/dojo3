@@ -31,6 +31,19 @@ export default function App() {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
+          {/* Parse referral query param once and store for later (claiming) */}
+          {typeof window !== 'undefined' && (() => {
+            try {
+              const params = new URLSearchParams(window.location.search)
+              const ref = params.get('ref') || params.get('r')
+              if (ref) {
+                localStorage.setItem('dojo3_referrer', ref)
+              }
+            } catch (e) {
+              // ignore
+            }
+            return null
+          })()}
           <div className="pixel-app">
             <header className="pixel-header">
               <div className="brand">🎪 DOJO3</div>
