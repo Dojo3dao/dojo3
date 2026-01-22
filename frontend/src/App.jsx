@@ -27,6 +27,14 @@ export default function App() {
     []
   )
 
+  // Animated hero features
+  const features = ['Airdrop', 'Staking', 'NFTs', 'Referral Rewards']
+  const [featIdx, setFeatIdx] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setFeatIdx(i => (i + 1) % features.length), 2200)
+    return () => clearInterval(t)
+  }, [])
+
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
@@ -43,13 +51,26 @@ export default function App() {
 
             <section className="hero">
               <div className="hero-inner">
-                <h1>Welcome to Dojo3</h1>
-                <p className="lead">
-                  Solana's Premier Airdrop Platform
-                  <br/>
-                  Check eligibility • Claim tokens • Stake NFTs • Earn rewards
+                <h1 style={{marginBottom: 8}}>Welcome to Dojo3</h1>
+
+                <div style={{display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12}}>
+                  <div style={{fontSize: 14, color: 'var(--text-dim)'}}>Solana ·</div>
+                  <div style={{fontSize: 14, fontWeight: 700, color: 'var(--accent)'}}>{features[featIdx]}</div>
+                  <div style={{fontSize: 13, color: 'var(--text-dim)'}}>• Mainnet</div>
+                </div>
+
+                <p className="lead" style={{maxWidth: 720}}>
+                  Dojo3 makes token distributions, staking and NFT drops simple and secure.
                 </p>
-                <div className="cta-row">
+
+                <div style={{display: 'flex', gap: 10, marginTop: 12, marginBottom: 8}}>
+                  <div style={{background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: 6}}>Check eligibility</div>
+                  <div style={{background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: 6}}>Claim tokens</div>
+                  <div style={{background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: 6}}>Stake NFTs</div>
+                  <div style={{background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: 6}}>Earn rewards</div>
+                </div>
+
+                <div className="cta-row" style={{marginTop: 14}}>
                   <WalletConnect />
                 </div>
               </div>
