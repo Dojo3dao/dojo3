@@ -71,7 +71,7 @@ def main():
     p.add_argument('--mint', required=True)
     p.add_argument('--treasury-ata', required=True)
     p.add_argument('--keypair', default='outputs/dev_treasury_keypair.json')
-    p.add_argument('--rpc', default=os.environ.get('SOLANA_RPC', 'https://api.devnet.solana.com'))
+    p.add_argument('--rpc', default=os.environ.get('SOLANA_RPC', 'https://api.mainnet-beta.solana.com'))
     p.add_argument('--yes', action='store_true')
     args = p.parse_args()
 

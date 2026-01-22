@@ -179,9 +179,9 @@ export default function SiteTemplate({ siteData }) {
       </main>
 
       <footer className="site-footer">
-        <p>
+              <p>
           تم إنشاء هذا الموقع باستخدام منصة Dojo3 🎪<br/>
-          <small style={{opacity: 0.7}}>Solana Devnet • Testnet Only</small>
+          <small style={{opacity: 0.7}}>Solana Mainnet • Live Network</small>
         </p>
       </footer>
     </div>
