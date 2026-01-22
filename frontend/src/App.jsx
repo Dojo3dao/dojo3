@@ -45,7 +45,7 @@ export default function App() {
             {/** Inline small component to avoid creating new files */}
             <ReferrerBannerInline />
               <header className="pixel-header">
-              <div className="brand">🎪 DOJO3</div>
+              <div className="brand">DOJO3</div>
               <div className="tag">AIRDROP • STAKING • NFTs • MAINNET</div>
             </header>
 
