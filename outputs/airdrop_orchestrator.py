@@ -29,9 +29,10 @@ AIRDROP_PERCENT = 60
 AIRDROP_POOL = int(TOTAL_SUPPLY * AIRDROP_PERCENT / 100)
 REFERRAL_BPS = 2400  # 24%
 
-RPC = os.environ.get("SOLANA_RPC", "https://api.devnet.solana.com")
+RPC = os.environ.get("SOLANA_RPC", "https://api.mainnet-beta.solana.com")
 DOJO3_TOKEN_MINT = os.environ.get("DOJO3_TOKEN_MINT")
-TREASURY_TOKEN_ACCOUNT = os.environ.get("TREASURY_TOKEN_ACCOUNT")
+# Default treasury account (use the repository's configured treasury unless overridden)
+TREASURY_TOKEN_ACCOUNT = os.environ.get("TREASURY_TOKEN_ACCOUNT", "8pSyRMP7R5qDU5BTqR93rESA1R2h5jH6hdPRjXmjnj8u")
 TREASURY_KEYPAIR_PATH = os.environ.get("TREASURY_KEYPAIR_PATH")
 
 
