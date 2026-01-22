@@ -9,6 +9,14 @@ Dojo3 is a compact toolkit to build site content and manage token airdrop and st
 
 Purpose: provide the minimal code and tools required to generate project sites, compute allocations, and run local development. Keep secrets out of the repository and use environment variables or a secrets manager for keys.
 
+# Mainnet notice
+
+This repository can target Solana Mainnet. BEFORE using Mainnet:
+
+- Remove any dev keypairs from the repository and rotate keys.
+- Set `SOLANA_RPC` to a trusted RPC provider or leave blank to use the default.
+- Set `PROOF_SECRET` (HMAC) in environment or secrets manager; do NOT use the insecure default.
+
 Use `backend/requirements.txt` and `frontend/package.json` to install dependencies.
 
 This README intentionally replaces other documentation to keep the repository focused and minimal.
@@ -32,3 +40,5 @@ python3 outputs/airdrop_orchestrator.py recipients.csv --dry-run
 ```
 
 See `outputs/USAGE.md` for more details.
+
+Warning: deploying to Mainnet requires funded keypairs and careful auditing. Do not run automated airdrops on Mainnet without testing and key rotation.

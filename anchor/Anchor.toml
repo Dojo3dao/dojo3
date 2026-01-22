@@ -2,7 +2,7 @@
 dojo3_airdrop = "REPLACE_WITH_PROGRAM_ID"
 
 [provider]
-cluster = "localnet"
+cluster = "mainnet"
 wallet = "~/.config/solana/id.json"
 
 [registry]

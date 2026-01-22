@@ -1,0 +1,13 @@
+/.venv
+venv/
+node_modules/
+outputs/
+public/sites/
+.env
+*.key
+*.json
+dev_*.json
+dev_treasury_keypair.json
+.DS_Store
+/.idea
+/.vscode

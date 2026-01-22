@@ -13,8 +13,8 @@ import SiteManager from './components/SiteManager'
 import Toasts from './components/Toasts'
 import './styles/pixel.css'
 
-// Solana Devnet endpoint
-const endpoint = clusterApiUrl('devnet')
+// Solana Mainnet endpoint
+const endpoint = clusterApiUrl('mainnet-beta')
 
 export default function App() {
   // Real wallet adapters - no simulation
@@ -36,9 +36,9 @@ export default function App() {
             {/* Referrer banner (shows if a referral id is present in localStorage) */}
             {/** Inline small component to avoid creating new files */}
             <ReferrerBannerInline />
-            <header className="pixel-header">
+              <header className="pixel-header">
               <div className="brand">🎪 DOJO3</div>
-              <div className="tag">AIRDROP • STAKING • NFTs • TESTNET</div>
+              <div className="tag">AIRDROP • STAKING • NFTs • MAINNET</div>
             </header>
 
             <section className="hero">
@@ -82,7 +82,7 @@ export default function App() {
             <Toasts />
 
             <footer className="pixel-footer">
-              🧪 Testnet Only • Do Not Use Mainnet Keys • Devnet SOL Required
+              ⚠️ Mainnet: Use production keys only — ensure funds and key rotation.
             </footer>
           </div>
         </WalletModalProvider>
