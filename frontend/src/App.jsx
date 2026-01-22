@@ -151,6 +151,19 @@ function ReferrerBannerInline() {
           Copy Share Link
         </button>
 
+        {/* Social share buttons */}
+        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Claim your Dojo3 airdrop")}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noreferrer" style={{padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', color: '#1DA1F2', textDecoration: 'none'}}>
+          Twitter
+        </a>
+
+        <a href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent("Claim your Dojo3 airdrop")}`} target="_blank" rel="noreferrer" style={{padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', color: '#26A5E4', textDecoration: 'none'}}>
+          Telegram
+        </a>
+
+        <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent("Claim your Dojo3 airdrop: ") + encodeURIComponent(shareUrl)}`} target="_blank" rel="noreferrer" style={{padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', color: '#25D366', textDecoration: 'none'}}>
+          WhatsApp
+        </a>
+
         <div style={{minWidth: 80, textAlign: 'left', fontSize: 12, opacity: 0.95}}>
           {copied ? <span style={{color: '#d1fae5'}}>Copied ✓</span> : <span style={{color: '#cfefff'}}>Ready to share</span>}
         </div>
