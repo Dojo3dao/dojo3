@@ -117,21 +117,43 @@ function ReferrerBannerInline() {
   }, [])
 
   const displayRef = queryRef || storedRef
-  const short = displayRef ? (displayRef.length > 16 ? `${displayRef.slice(0, 8)}...${displayRef.slice(-8)}` : displayRef) : null
 
-  // Debug banner: always render minimal info so we can see why nothing appears
+  const [copied, setCopied] = useState(false)
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch (e) {
+      console.error('Copy failed', e)
+    }
+  }
+
+  if (!displayRef) return null
+
+  const short = displayRef.length > 24 ? `${displayRef.slice(0, 12)}…${displayRef.slice(-8)}` : displayRef
+  const shareUrl = `${window.location.origin}${window.location.pathname}?ref=${displayRef}`
+
   return (
-    <div style={{display: 'flex', flexDirection: 'column', gap: '6px'}}>
-      <div style={{background: displayRef ? 'linear-gradient(90deg,#072540,#0b3b5a)' : '#333', color: '#fff', padding: '8px 12px', textAlign: 'center', fontSize: '13px'}}>
-        {displayRef ? (
-          <>👉 You were referred by: <strong style={{fontFamily: 'monospace'}}>{short}</strong></>
-        ) : (
-          <>No referral detected — open with <code>?ref=PUBKEY</code></>
-        )}
+    <div style={{background: 'linear-gradient(90deg,#072540,#0b3b5a)', color: '#fff', padding: '10px 14px', textAlign: 'center', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px'}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+        <div style={{fontSize: 13, color: '#BEE3F8'}}>🎁 Referred by</div>
+        <div style={{fontFamily: 'monospace', background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: 6}}>{short}</div>
       </div>
-      <div style={{position: 'fixed', right: 12, bottom: 12, background: 'rgba(0,0,0,0.6)', color: '#fff', padding: '8px', borderRadius: 6, fontSize: 11}}>
-        <div style={{opacity: 0.85}}>Query: {queryRef || '—'}</div>
-        <div style={{opacity: 0.85}}>Stored: {storedRef || '—'}</div>
+
+      <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+        <button onClick={() => copyText(displayRef)} style={{padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#0ea5a3', color: '#012'}}>
+          Copy Pubkey
+        </button>
+
+        <button onClick={() => copyText(shareUrl)} style={{padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', color: '#fff', cursor: 'pointer'}}>
+          Copy Share Link
+        </button>
+
+        <div style={{minWidth: 80, textAlign: 'left', fontSize: 12, opacity: 0.95}}>
+          {copied ? <span style={{color: '#d1fae5'}}>Copied ✓</span> : <span style={{color: '#cfefff'}}>Ready to share</span>}
+        </div>
       </div>
     </div>
   )
