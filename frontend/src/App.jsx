@@ -95,34 +95,44 @@ export default function App() {
 }
 
 function ReferrerBannerInline() {
-  const [ref, setRef] = useState(null)
+  const [storedRef, setStoredRef] = useState(null)
+  const [queryRef, setQueryRef] = useState(null)
 
   useEffect(() => {
     try {
-      // Parse query param and persist it, prefer `ref` then `r`
       const params = new URLSearchParams(window.location.search)
       const qref = params.get('ref') || params.get('r')
       if (qref) {
         localStorage.setItem('dojo3_referrer', qref)
-        setRef(qref)
+        setQueryRef(qref)
+        setStoredRef(qref)
         return
       }
 
-      // Fallback to any previously stored referrer
       const stored = localStorage.getItem('dojo3_referrer')
-      if (stored) setRef(stored)
+      if (stored) setStoredRef(stored)
     } catch (e) {
       // ignore
     }
   }, [])
 
-  if (!ref) return null
+  const displayRef = queryRef || storedRef
+  const short = displayRef ? (displayRef.length > 16 ? `${displayRef.slice(0, 8)}...${displayRef.slice(-8)}` : displayRef) : null
 
-  const short = ref.length > 16 ? `${ref.slice(0, 8)}...${ref.slice(-8)}` : ref
-
+  // Debug banner: always render minimal info so we can see why nothing appears
   return (
-    <div style={{background: 'linear-gradient(90deg,#072540,#0b3b5a)', color: '#fff', padding: '8px 12px', textAlign: 'center', fontSize: '13px'}}>
-      👉 You were referred by: <strong style={{fontFamily: 'monospace'}}>{short}</strong>
+    <div style={{display: 'flex', flexDirection: 'column', gap: '6px'}}>
+      <div style={{background: displayRef ? 'linear-gradient(90deg,#072540,#0b3b5a)' : '#333', color: '#fff', padding: '8px 12px', textAlign: 'center', fontSize: '13px'}}>
+        {displayRef ? (
+          <>👉 You were referred by: <strong style={{fontFamily: 'monospace'}}>{short}</strong></>
+        ) : (
+          <>No referral detected — open with <code>?ref=PUBKEY</code></>
+        )}
+      </div>
+      <div style={{position: 'fixed', right: 12, bottom: 12, background: 'rgba(0,0,0,0.6)', color: '#fff', padding: '8px', borderRadius: 6, fontSize: 11}}>
+        <div style={{opacity: 0.85}}>Query: {queryRef || '—'}</div>
+        <div style={{opacity: 0.85}}>Stored: {storedRef || '—'}</div>
+      </div>
     </div>
   )
 }
