@@ -76,7 +76,7 @@ PRICE_FILE = os.path.join(BASE_DIR, '..', 'config', 'token_prices.json')
 STAKING_PROGRAM_ID = os.environ.get('STAKING_PROGRAM_ID', 'HMwy4JHwuLkMMR3q6B3atwZ4oUAGrc3yHtgC7MswWNY1')
 
 # RPC configuration
-RPC = os.environ.get('SOLANA_RPC', 'https://api.devnet.solana.com')
+RPC = os.environ.get('SOLANA_RPC', 'https://api.mainnet-beta.solana.com')
 try:
     client = Client(RPC)
     logger.info(f"Connected to Solana RPC: {RPC}")
